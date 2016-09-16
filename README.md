@@ -1,5 +1,6 @@
 # CHIP-Web-Control
 Control C.H.I.P's GPIO from the web using flask.
+Temperature and Humidity readings not working yet.
 
 Installation Guide:
 sudo apt-get update
