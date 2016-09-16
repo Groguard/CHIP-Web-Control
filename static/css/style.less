@@ -1,0 +1,165 @@
+@basic: #56ca7c;
+@standard: #5f5fa7;
+@premium: #0e83cd;
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,500,700);
+
+.pricing-table {
+  position: relative;
+  display: block;
+  margin: 0 20px;
+  float: left;
+  width: 300px;
+  background: #ffffff;
+  font-family: Roboto, Helvetica, sans-serif;
+  text-align: center;
+}
+
+.basic {
+  border-top: 3px solid @basic;
+  border-bottom: 3px solid @basic;
+}
+
+.standard {
+  border-top: 3px solid @standard;
+  border-bottom: 3px solid @standard;
+}
+
+.premium {
+  border-top: 3px solid @premium;
+  border-bottom: 3px solid @premium;
+}
+
+.pricing-table span {
+  display: block;
+}
+
+.table-head {
+  padding: 25px 0;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.basic .table-head {
+  color: @basic;
+}
+
+.standard .table-head {
+  color: @standard;
+}
+
+.premium .table-head {
+  color: @premium;
+}
+
+.price {
+  padding: 8px 0;
+  font-size: 32px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.basic .price {
+  background: @basic;
+}
+
+.standard .price {
+  background: @standard;
+}
+
+.premium .price {
+  background: @premium;
+}
+
+.table-row {
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: #888;
+}
+
+.table-row:nth-child(2n) {
+  background: #f7f7f7;
+}
+
+.purchase {
+  padding: 35px 0;
+}
+
+a.buy {
+  position: relative;
+  display: inline-block;
+  z-index: 5;
+  padding: 7px 15px;
+  border-radius: 4px;
+  
+  text-decoration: none;
+  font-size: 16px;
+  
+  font-weight: 500;
+  -webkit-transition: color .2s ease, background .5s ease;
+  -o-transition: color .2s ease, background .5s ease;
+  transition: color .2s ease, background .5s ease;
+  overflow: hidden;
+}
+
+.basic a.buy {
+  border: 2px solid @basic;
+  color: @basic;
+}
+
+.standard a.buy {
+  border: 2px solid @standard;
+  color: @standard;
+}
+
+.premium a.buy {
+  border: 2px solid @premium;
+  color: @premium;
+}
+
+a.buy:hover {
+  color: #ffffff;
+ 
+}
+
+.basic a.buy:hover {
+   background: @basic;
+}
+
+.standard a.buy:hover {
+   background: @standard;
+}
+
+.premium a.buy:hover {
+   background: @premium;
+}
+
+a.buy:after {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: block;
+  z-index: -1;
+  width: 100%;
+  height: 0;
+  content: '';
+  -webkit-transition: all .2s ease;
+  -o-transition: all .2s ease;
+  transition: all .2s ease;
+}
+
+.basic a.buy:after {
+  background: @basic;
+}
+
+.standard a.buy:after {
+  background: @standard;
+}
+
+.premium a.buy:after {
+  background: @premium;
+}
+
+a.buy:hover:after {
+  height: 100%;
+}
