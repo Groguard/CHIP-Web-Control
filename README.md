@@ -3,8 +3,11 @@ Control C.H.I.P's GPIO from the web using flask.
 Temperature and Humidity readings not working yet.
 
 Installation Guide:
+
 sudo apt-get update
+
 sudo apt-get install git build-essential python3 python3-dev python3-pip flex
+
 sudo pip3 install flask
 
 Installing CHIP_IO from xtacocorex git https://github.com/xtacocorex/CHIP_IO:
