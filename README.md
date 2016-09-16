@@ -22,7 +22,7 @@ Installing CHIP_IO from xtacocorex git https://github.com/xtacocorex/CHIP_IO:
   
   cd CHIP_IO
   
-  sudo python setup.py install
+  sudo python3 setup.py install
   
   cd
   
