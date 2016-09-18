@@ -6,7 +6,7 @@ Installation Guide:
 
 sudo apt-get update
 
-sudo apt-get install git build-essential python3 python3-dev python3-pip flex
+sudo apt-get install git build-essential python3 python3-dev python3-pip flex byson
 
 sudo pip3 install flask
 
