@@ -5,9 +5,14 @@
 
 **  
 
+**Only for kernel 4.4**
+
 **Install the modfied kernel to allow for reading the sensor**
+
 Credit to danjperron on the nextthingco forums for the kernel.
+
 Copy and paste exactly as it is.
+
 1. sudo bash (enter password)
 2. cd /   <--- Dont forget the "/"
 3. wget https://dl.dropboxusercontent.com/u/48891705/chip/kernel-4.4.11-DJP.tgz
