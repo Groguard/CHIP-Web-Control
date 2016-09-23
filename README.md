@@ -1,9 +1,6 @@
 
-**
 
 ## C.H.I.P GPIO Web Control - V0.6
-
-**  
 
 **Only for kernel 4.4**
 
