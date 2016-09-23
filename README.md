@@ -4,7 +4,7 @@
 
 **Only for kernel 4.4**
 
-[url=http://imgur.com/OBdLqax][img]http://i.imgur.com/OBdLqaxl.png[/img][/url]
+<a href="http://imgur.com/OBdLqax"><img src="http://i.imgur.com/OBdLqaxl.png" title="source: imgur.com" /></a>
 <a href="http://imgur.com/cclHPII"><img src="http://i.imgur.com/cclHPII.jpg" title="source: imgur.com" /></a>
 
 **Install the modfied kernel to allow for reading the sensor**
