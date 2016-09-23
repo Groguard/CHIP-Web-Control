@@ -1,8 +1,8 @@
 import CHIP_IO.GPIO as GPIO
-import threading
+import threading, subprocess
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-import time
 from functools import wraps
+from time import sleep
 
 app = Flask(__name__)
 
@@ -104,11 +104,11 @@ def Device1Timer(): # Timer for Device 1
             time1 = app.config['DEVICE1TIMEON']
             time2 = app.config['DEVICE1TIMEOFF']
             GPIO.output(app.config['DEVICE1PIN'], GPIO.LOW)
-            time.sleep(float(time1)*3600)
+            sleep(float(time1)*3600)
             GPIO.output(app.config['DEVICE1PIN'], GPIO.HIGH)
-            time.sleep(float(time2)*3600)
+            sleep(float(time2)*3600)
         else:
-            time.sleep(30)
+            sleep(30)
         
 def Device2Timer(): # Timer for Device 2
     while 1:
@@ -116,11 +116,11 @@ def Device2Timer(): # Timer for Device 2
             time1 = app.config['DEVICE2TIMEON']
             time2 = app.config['DEVICE2TIMEOFF']
             GPIO.output(app.config['DEVICE2PIN'], GPIO.LOW)
-            time.sleep(float(time1)*3600)
+            sleep(float(time1)*3600)
             GPIO.output(app.config['DEVICE2PIN'], GPIO.HIGH)
-            time.sleep(float(time2)*3600)
+            sleep(float(time2)*3600)
         else:
-            time.sleep(30)
+            sleep(30)
         
 def Device3Timer(): # Timer for Device 3
     while 1:
@@ -128,11 +128,11 @@ def Device3Timer(): # Timer for Device 3
             time1 = app.config['DEVICE3TIMEON']
             time2 = app.config['DEVICE3TIMEOFF']
             GPIO.output(app.config['DEVICE3PIN'], GPIO.LOW)
-            time.sleep(float(time1)*3600)
+            sleep(float(time1)*3600)
             GPIO.output(app.config['DEVICE3PIN'], GPIO.HIGH)
-            time.sleep(float(time2)*3600)
+            sleep(float(time2)*3600)
         else:
-            time.sleep(30)
+            sleep(30)
 
 def Device4Timer(): # Timer for Device 4
     while 1:
@@ -140,11 +140,11 @@ def Device4Timer(): # Timer for Device 4
             time1 = app.config['DEVICE4TIMEON']
             time2 = app.config['DEVICE4TIMEOFF']
             GPIO.output(app.config['DEVICE4PIN'], GPIO.LOW)
-            time.sleep(float(time1)*3600)
+            sleep(float(time1)*3600)
             GPIO.output(app.config['DEVICE4PIN'], GPIO.HIGH)
-            time.sleep(float(time2)*3600)
+            sleep(float(time2)*3600)
         else:
-            time.sleep(30)
+            sleep(30)
         
 #------------------------------------------ Threads for timers --------------------------------------
 
