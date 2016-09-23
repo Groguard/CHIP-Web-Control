@@ -1,49 +1,48 @@
-# CHIP-Web-Control
-Control C.H.I.P's GPIO from the web using flask.
-Temperature and Humidity readings not working yet.
 
-Installation Guide:
+**
 
-sudo apt-get update
+## C.H.I.P GPIO Web Control - V0.6
 
-sudo apt-get install git build-essential python3 python3-dev python3-pip flex bison
+**  
 
-sudo pip3 install flask
+**Install the modfied kernel to allow for reading the sensor**
+Credit to danjperron on the nextthingco forums for the kernel.
+Copy and paste exactly as it is.
+1. sudo bash (enter password)
+2. cd /   <--- Dont forget the "/"
+3. wget https://dl.dropboxusercontent.com/u/48891705/chip/kernel-4.4.11-DJP.tgz
+4. tar -xzf kernel-4.4.11-DJP.tgz
+5. rm kernel-4.4.11-DJP.tgz
+6. reboot
 
-Installing CHIP_IO from xtacocorex git https://github.com/xtacocorex/CHIP_IO:
+**How to install**
 
-  git clone https://github.com/atenart/dtc
-  
-  cd dtc
-  
-  make
-  
-  sudo  make install PREFIX=/usr
-  
-  cd
-  
-  git clone git://github.com/xtacocorex/CHIP_IO.git
-  
-  cd CHIP_IO
-  
-  sudo python3 setup.py install
-  
-  cd
-  
-  sudo rm -rf CHIP_IO
+1. sudo apt-get update
+2. sudo apt-get install git build-essential python3 python3-dev python3-pip flex bison screen
+3. sudo pip3 install flask
 
-Running the software:
+**Installing CHIP_IO from @xtacocorex git https://github.com/xtacocorex/CHIP_IO:**
 
-1. Navigate to the folder which you downloaded CHIP-Web-Control software.
+1. git clone https://github.com/atenart/dtc
+2. cd dtc
+3. make
+4. sudo make install PREFIX=/usr
+5. cd
+6. git clone git://github.com/xtacocorex/CHIP_IO.git
+7. cd CHIP_IO
+8. sudo python3 setup.py install
+9. cd
+10. sudo rm -rf CHIP_IO
 
-2. Run the command sudo python3 CHIPWebControlV0.5.py
+**Downloading and running the software:**
+1. git clone git://github.com/Groguard/CHIP-Web-Control.git
+2. cd CHIP-Web-Control
+3. Open the config.cfg file and setup your pins, names, and timers
+4. screen
+5 sudo python3 CHIPWebControl.py
+6. You should be able to navigate in your browser and view the web page at yourchipsip:8080
 
-3. You should now be able to navigate to your CHIPs ip address like "192.168.1.22:8080" Server is running on port 8080 so make sure to include that.
+With the program running in a screen, you can disconnect from the terminal and it will continue to run. If it should shutdown for some reason it will need to be restarted using steps 4-5. I'm working on a script to make it run at start, should have the soon.
+[img]/uploads/nextthing/original/2X/0/0ebb2c9657ec70cf5e9d3e47399890f954e9248b.jpg[/img]
 
-
-Patch notes for CHIP-Web-Control V0.5:
-
-- All flask related stuff working
-
-- GPIO control works
-- Timers work
+[img]/uploads/nextthing/original/2X/e/e387663da3b01cbe9f55bbf9c54bc262ee3c94b8.png[/img]
