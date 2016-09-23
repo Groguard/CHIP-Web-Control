@@ -48,3 +48,4 @@ Copy and paste exactly as it is.
 
 With the program running in a screen, you can disconnect from the terminal and it will continue to run. If it should shutdown for some reason it will need to be restarted using steps 4-5. I'm working on a script to make it run at start, should have the soon.
 
+<a href="http://imgur.com/RsKuapf"><img src="http://i.imgur.com/RsKuapf.png" title="source: imgur.com" /></a>
