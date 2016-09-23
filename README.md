@@ -41,6 +41,7 @@ Copy and paste exactly as it is.
 
 
 **Downloading and running the software:**
+
 1. git clone git://github.com/Groguard/CHIP-Web-Control.git
 2. cd CHIP-Web-Control
 3. Open the config.cfg file and setup your pins, names, and timers
