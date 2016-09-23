@@ -72,6 +72,5 @@ You should be able to navigate in your browser and view the web page at yourchip
 With the program running in a screen, you can disconnect from the terminal and it will continue to run. If it should shutdown for some reason it will need to be restarted using steps 4-5. I'm working on a script to make it run at start, should have the soon.
 
 ## DHT22 Wiring
-[img]/uploads/nextthing/original/2X/4/4bda21d7ce4eb36122fe230f78f365073594afa6.png[/img]
 
 <a href="http://imgur.com/RsKuapf"><img src="http://i.imgur.com/RsKuapf.png" title="source: imgur.com" /></a>
