@@ -39,6 +39,7 @@ Copy and paste exactly as it is.
 9. cd
 10. sudo rm -rf CHIP_IO
 
+
 **Downloading and running the software:**
 1. git clone git://github.com/Groguard/CHIP-Web-Control.git
 2. cd CHIP-Web-Control
@@ -48,6 +49,4 @@ Copy and paste exactly as it is.
 6. You should be able to navigate in your browser and view the web page at yourchipsip:8080
 
 With the program running in a screen, you can disconnect from the terminal and it will continue to run. If it should shutdown for some reason it will need to be restarted using steps 4-5. I'm working on a script to make it run at start, should have the soon.
-[img]/uploads/nextthing/original/2X/0/0ebb2c9657ec70cf5e9d3e47399890f954e9248b.jpg[/img]
 
-[img]/uploads/nextthing/original/2X/e/e387663da3b01cbe9f55bbf9c54bc262ee3c94b8.png[/img]
