@@ -4,6 +4,9 @@
 
 **Only for kernel 4.4**
 
+<a href="http://imgur.com/OBdLqax"><img src="http://i.imgur.com/OBdLqax.png" title="source: imgur.com" /></a>
+<a href="http://imgur.com/cclHPII"><img src="http://i.imgur.com/cclHPII.jpg" title="source: imgur.com" /></a>
+
 **Install the modfied kernel to allow for reading the sensor**
 
 Credit to danjperron on the nextthingco forums for the kernel.
