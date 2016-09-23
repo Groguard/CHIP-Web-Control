@@ -81,20 +81,21 @@ def _state():
       pins[pin]['state'] = GPIO.input(pin)    
     return "" 
 
-# ajax GET call this function periodically to read button state
-# the state is sent back as json data
+# ajax GET call, this function periodically reads temp and humidity
+# and is sent back as json data
 @app.route("/_temphum")
 def _temphum():
     # Read the temp and humidity
-    #temphumid = app.config['TEMPHUMPIN']
     while 1:
-        temp = 83
-        humidity = 25
-        # h,t = dht.read_retry(dht.DHT22, int(temphumid))
-        # CtoF = t*9/5+32
-        # temp = '{0:0.1f}'.format(CtoF)
-        # humidity = '{0:0.1f}'.format(h)
-        return jsonify(tempState=temp, humState=humidity)    
+        try:
+            temperature = float(subprocess.getoutput('cat /sys/bus/iio/devices/iio:device0/in_temp_input')) # get the temperature
+            humidity = float(subprocess.getoutput('cat /sys/bus/iio/devices/iio:device0/in_humidityrelative_input')) # get the humidity
+            temperature = round(9.0/5.0 * (temperature/1000) + 32, 2) # convert celsius to fahrenheit
+            humidity = round(float(humidity/1000), 2)
+            return jsonify(tempState=temperature, humState=humidity) 
+            sleep(2)
+        except ValueError:
+            sleep(2)   
    
 # ------------------------------------- Timer section for all devices ---------------------------------------------------   
 def Device1Timer(): # Timer for Device 1
