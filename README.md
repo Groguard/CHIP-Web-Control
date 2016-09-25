@@ -1,4 +1,6 @@
 ## C.H.I.P GPIO Web Control - V0.6
+This is a program that I orginally had made for the raspberry pi, and I have since ported it over to C.H.I.P made by NextThingCo.
+The purpose of this program is to allow easy control and reading of the GPIO of C.H.I.P on the web. I originally made it to control my indoor garden setup, but there are many other uses this software could be used for, if you would like to control the GPIO of C.H.I.P from the browser.  
 
 **Only for kernel 4.4**
 
