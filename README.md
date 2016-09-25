@@ -14,7 +14,7 @@
 
 sudo bash (enter password)
 
-cd /Dont forget the "/"
+cd /     <<--Dont forget the "/"
 
 wget https://dl.dropboxusercontent.com/u/48891705/chip/kernel-4.4.11-DJP.tgz
 
