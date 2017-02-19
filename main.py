@@ -15,9 +15,8 @@ chip_io = ['TWI1-SDA', 'TWI1-SCK', 'LCD-D2', 'PWM0', 'LCD-D4', 'LCD-D3', 'LCD-D6
             'XIO-P1', 'XIO-P2', 'XIO-P3', 'XIO-P4', 'XIO-P5', 'XIO-P6', 'XIO-P7', 'AP-EINT1', 
             'AP-EINT3', 'TWI2-SDA', 'TWI2-SCK', 'CSIPCK', 'CSICK', 'CSIHSYNC', 'CSIVSYNC', 
             'CSID0', 'CSID1', 'CSID2', 'CSID3', 'CSID4', 'CSID5', 'CSID6', 'CSID7']
-
-@app.route('/')
-def index():
+            
+def get_devices():
     config.read(configPath)
     zones = config.get('zones', 'zone_count')
     pass_data = []
@@ -28,14 +27,16 @@ def index():
             deviceData.append(config.get(device, deviceOptions))
         pass_data.append((device, deviceData))
     pass_data.append(int(zones))
+    return(pass_data)
+
+@app.route('/')
+def index():
+    pass_data = get_devices()
     return render_template('index.html', pass_data=pass_data)
     
 @app.route('/add', methods=['GET', 'POST'])
 def addDevice():
     config.read(configPath)
-    zones = config.get('zones', 'zone_count')
-    pass_data = []
-    pass_data.append(chip_io)
     if request.method == 'POST':
         request.parameter_storage_class = ImmutableOrderedMultiDict
         lastDevice = request.form['device[]']
@@ -64,19 +65,12 @@ def addDevice():
             config.set(lastDevice, 'zone', request.form['zone[]'])
             with open(configPath, "wb") as config_file:
                 config.write(config_file)
-    for device in config.sections()[1:]:
-        deviceData = []
-        for deviceOptions in config.options(device):
-            deviceData.append(config.get(device, deviceOptions))
-        pass_data.append((device, deviceData))
-    pass_data.append(int(zones))
+    pass_data = get_devices()
     return render_template('addDevice.html', pass_data=pass_data)
     
 @app.route('/edit', methods=['GET', 'POST'])
 def editDevice():
     config.read(configPath)
-    pass_data = []
-    pass_data.append(chip_io)
     if request.method == 'POST':
         if request.form['submit'] == 'Update Device Settings':
             request.parameter_storage_class = ImmutableOrderedMultiDict
