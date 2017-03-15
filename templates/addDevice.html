@@ -67,8 +67,8 @@
                             <div class="panel-body">
 							<label>Zone Count:</label>
 							<select class="form-control" name="zone[]">
-							{% for i in range(1, pass_data[-1]+5) %}
-								{% if pass_data[-1] == i %}
+							{% for i in range(1, pass_data['zone_count']+5) %}
+								{% if pass_data['zone_count'] == i %}
 								<option selected>{{ i }}</option>
 								{% else %}
 								<option>{{ i }}</option>
@@ -104,7 +104,7 @@
 													<div class="col-md-2">
 														<label>GPIO Pin Number:</label>
 														<select class="form-control" name="pin[]">
-														{% for pin in pass_data[0] %}
+														{% for pin in pass_data['chip_pins'] %}
 															<option>{{ pin }}</option>
 														{% endfor %}
 														</select>
@@ -129,17 +129,44 @@
 															<option>Low</option>
 															<option>High</option>
 														</select>
+														<br>
+														<label> Note: Pull Up, Pull Down, and Pull Off NOT available for XIO pins.</label>
+													</div>
+													<div class="col-md-2">
+														<label>Timer On/Off:</label>
+														<select class="form-control" name="timer_onoff[]">
+															<option>Off</option>
+															<option>On</option>
+														</select>
+														<br>
+														<label>Timer Minutes/Hours:</label>
+														<select class="form-control" name="timer_scale[]">
+															<option>Minutes</option>
+															<option>Hours</option>
+														</select>
+													<br>
+													<label> Note: Timer for Output pins only.</label>
+													</div>
+													<div class="col-md-2">
+														<label for="timeon">Time on(Hours/Minutes):</label>
+														<input type="text" class="form-control" name="timeon[]">
+														<br>
+														<label for="timeoff">Time off(Hours/Minutes):</label>
+														<input type="text" class="form-control" name="timeoff[]">
 													</div>
 													<div class="col-md-2">
 														<label for="zone[]">Zone:</label>
 														<select class="form-control" name="zone[]">
-														{% for i in range(1, pass_data[-1]+1) %}
+														{% for i in range(1, pass_data['zone_count']+1) %}
 															<option>{{ i }}</option>
 														{% endfor %}
 														</select>
-													</div>
-													<div class="col-md-2">
-														<label> Note: Pull Up, Pull Down, and Pull Off NOT available for XIO pins.</label>
+														<br>
+														<label for="reverse_logic[]">Reverse On/Off Logic:</label>
+														<select class="form-control" name="reverse_logic[]">
+															<option selected>No</option>
+															<option>Yes</option>
+														</select>
 													</div>
 												</div>
 											</div>
@@ -163,11 +190,11 @@
 							<h3 class="panel-title">Current Devices</h3>
 						</div>
 						<div class="panel-body">
-						{% for device in pass_data[1:-1] %}
+						{% for device in pass_data['devices'] %}
 						<form action="/edit" method="POST">
 							<div class="panel panel-primary">
 								<div class="panel-heading"><h3 class="panel-title">
-									<input type="text" class="form-control" name="device[]" value="{{ device[0] }}"></h3>
+									<input type="text" class="form-control" name="device[]" value="{{ device }}"></h3>
 								</div>
 								<div class="panel-body">
 									<div class="container">
@@ -176,8 +203,8 @@
 												<div class="col-md-2">
 													<label>GPIO Pin Number:</label>
 													<select class="form-control" name="pin[]">
-													{% for pin in pass_data[0] %}
-														{% if pin == device[1][0] %}
+													{% for pin in pass_data['chip_pins'] %}
+														{% if pin == pass_data['devices'][device]['pin'] %}
 														<option selected>{{ pin }}</option>
 														{% else %}
 														<option>{{ pin }}</option>
@@ -187,7 +214,7 @@
 													<br>
 													<label for="input_output[]">Input or Output:</label>
 													<select class="form-control" name="input_output[]">
-														{% if device[1][1] == 'Input' %}
+														{% if pass_data['devices'][device]['input_output'] == 'Input' %}
 														<option selected>Input</option>
 														<option>Output</option>
 														{% else %}
@@ -199,22 +226,22 @@
 												<div class="col-md-2">
 													<label for="pullup_pulldown[]">Pull Up, Down or Off:</label>
 													<select class="form-control" name="pullup_pulldown[]">
-													{% if device[1][2] == 'None' %}
+													{% if pass_data['devices'][device]['pullup_pulldown'] == 'None' %}
 														<option selected>None</option>
 														<option>Pull Up</option>
 														<option>Pull Down</option>
 														<option>Pull Off</option>
-													{% elif device[1][2] == 'Pull Up' %}
+													{% elif pass_data['devices'][device]['pullup_pulldown'] == 'Pull Up' %}
 														<option>None</option>
 														<option selected>Pull Up</option>
 														<option>Pull Down</option>
 														<option>Pull Off</option>
-													{% elif device[1][2] == 'Pull Down' %}
+													{% elif pass_data['devices'][device]['pullup_pulldown'] == 'Pull Down' %}
 														<option>None</option>
 														<option>Pull Up</option>
 														<option selected>Pull Down</option>
 														<option>Pull Off</option>
-													{% elif device[1][2] == 'Pull Off' %}
+													{% elif pass_data['devices'][device]['pullup_pulldown'] == 'Pull Off' %}
 														<option>None</option>
 														<option>Pull Up</option>
 														<option>Pull Down</option>
@@ -224,7 +251,7 @@
 													<br>
 													<label for="high_low[]">Default State:</label>
 													<select class="form-control" name="high_low[]">
-													{% if device[1][3] == 'Low' %}
+													{% if pass_data['devices'][device]['defaultstate'] == 'Low' %}
 														<option selected>Low</option>
 														<option>High</option>
 													{% else %}
@@ -232,25 +259,68 @@
 														<option selected>High</option>
 													{% endif %}
 													</select>
+													<br>
+													<label> Note: Pull Up, Pull Down, and Pull Off NOT available for XIO pins.</label>
+												</div>
+												<div class="col-md-2">
+													<label>Timer On/Off:</label>
+													<select class="form-control" name="timer_onoff[]">
+													{% if pass_data['devices'][device]['timer_onoff'] == 'On' %}
+															<option>Off</option>
+															<option selected>On</option>
+														{% else %}
+															<option selected>Off</option>
+															<option>On</option>
+													{% endif %}
+													</select>
+													<br>
+													<label>Timer Minutes/Hours:</label>
+													<select class="form-control" name="timer_scale[]">
+														{% if pass_data['devices'][device]['timer_scale'] == 'Minutes' %}
+															<option selected>Minutes</option>
+															<option>Hours</option>
+														{% else %}
+															<option>Minutes</option>
+															<option selected>Hours</option>
+														{% endif %}
+													</select>
+													<br>
+													<label>Note: Timer for Output pins only.</label>
+													<input type="submit" name="submit" value="Update Device Settings" class="btn btn-primary btn-large">
+												</div>
+												<div class="col-md-2">
+													<label for="timeon">Time on(Hours/Minutes):</label>
+													<input type="text" class="form-control" name="timeon[]" value="{{ pass_data['devices'][device]['timeon'] }}">
+													<br>
+													<label for="timeoff">Time off(Hours/Minutes):</label>
+													<input type="text" class="form-control" name="timeoff[]" value="{{ pass_data['devices'][device]['timeoff'] }}">
+													<br>
+													<input type="submit" name="submit" value="Remove Device" class="btn btn-primary btn-large" style="margin-top: 45px">
 												</div>
 												<div class="col-md-2">
 													<label for="zone[]">Zone:</label>
 													<select class="form-control" name="zone[]">
-														{% for i in range(1, pass_data[-1]+1) %}
-															{% if device[1][4]|int == i %}
-															<option selected>{{ device[1][4] }}</option>
-															{% else %}
-															<option>{{ loop.index }}</option>
-															{% endif %} 
-														{% endfor %}
+													{% for i in range(1, pass_data['zone_count']+1) %}
+														{% if pass_data['devices'][device]['zone']|int == i %}
+														<option selected>{{ i }}</option>
+														{% else %}
+														<option>{{ loop.index }}</option>
+														{% endif %} 
+													{% endfor %}
+													</select>
+													<br>
+													<label for="reverse_logic[]">Reverse On/Off Logic:</label>
+													<select class="form-control" name="reverse_logic[]">
+														{% if pass_data['devices'][device]['reverse_logic'] == 'Yes' %}
+														<option selected>Yes</option>
+														<option>No</option>
+														{% else %}
+														<option>Yes</option>
+														<option selected>No</option>
+														{% endif %}
 													</select>
 												</div>
-												<div class="col-md-2">
-													<label> Note: Pull Up, Pull Down, and Pull Off NOT available for XIO pins.</label>
-												</div>
 											</div>
-											<input type="submit" name="submit" value="Remove" class="btn btn-primary btn-large">
-											<input type="submit" name="submit" value="Update Device Settings" class="btn btn-primary btn-large">
 										</div>
 									</div>
 								</div>

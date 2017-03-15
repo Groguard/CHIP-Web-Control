@@ -31,7 +31,10 @@
 			</div>
 		  </div>
 		</div>
-		{% for i in range(1, pass_data[-1]+1) %}
+		<ul id="output">
+
+        </ul>
+		{% for i in range(1, pass_data['zone_count']+1) %}
 		<div class="section">
 		  <div class="container">
 			<div class="row">
@@ -45,19 +48,30 @@
 					<h3 class="panel-title"> Zone {{ loop.index }}</h3>
 				  </div>
 				  <div class="panel-body">
-				{% for device in pass_data[1:-1] if device[1][4]|int == i %}
+				{% for device in pass_data['devices'] if pass_data['devices'][device].zone|int == i %}
 				<div class="col-md-4">
 					<div class="panel panel-primary">
 					  <div class="panel-heading">
-						<h3 class="panel-title">{{ device[0] }}</h3>
+						<h3 class="panel-title">{{ device }}</h3>
 					  </div>
 					  <div class="panel-body">
 					<div class="panel-body"> 
-						<ul class="list-group">
-						  <li class="list-group-item"><button name="" id="" type="button" class="btn btn-danger btn-block usable">Power OFF</button></li>
-						  <li class="list-group-item"><a class="btn btn-danger btn-block active">Timer</a></li>
-						  <li class="list-group-item"><a class="btn btn-danger btn-block active">On for hours | Off for hours</a></li>
-						</ul>
+                    <ul class="list-group">
+                      {% if  pass_data['devices'][device].state == 'On' %} 
+                      <li class="list-group-item"><button id="{{ device }}:{{ pass_data['devices'][device].pin }}" type="button" class="btn btn-success btn-block usable">Power On</button></li>
+                      {% else %}
+                      <li class="list-group-item"><button id="{{ device }}:{{ pass_data['devices'][device].pin }}" type="button" class="btn btn-danger btn-block usable">Power Off</button></li>
+                      {% endif %}
+                      {% if pass_data['devices'][device].timer_onoff == 'On' %}
+                      <li class="list-group-item"><a class="btn btn-success btn-block active">Timer {{ pass_data['devices'][device].timer_onoff }}</a></li>
+                      <li class="list-group-item"><a class="btn btn-success btn-block active">On for {{ pass_data['devices'][device].timeon }} {{ pass_data['devices'][device].timer_scale }} |
+					  Off for {{ pass_data['devices'][device].timeoff }} {{ pass_data['devices'][device].timer_scale }}</a></li>
+                      {% else %}
+                      <li class="list-group-item"><a class="btn btn-danger btn-block active">Timer {{ pass_data['devices'][device].timer_onoff }}</a></li>
+                      <li class="list-group-item"><a class="btn btn-danger btn-block active">On for {{ pass_data['devices'][device].timeon }}
+					  {{ pass_data['devices'][device].timer_scale }} | Off for {{ pass_data['devices'][device].timeoff }} {{ pass_data['devices'][device].timer_scale }}</a></li>
+                      {% endif %}
+                    </ul>
 					</div>
 				  </div>
 				</div>
@@ -72,4 +86,33 @@
     </div>
 		{% endfor %}
  </body>
+<script type="text/javascript">
+	$(document).ready(
+		function() {
+			sse = new EventSource('/my_event_source');
+			sse.onmessage = function(message) {
+				var incoming = message.data.split(' ', 4);
+				var power = incoming[2] + " " + incoming[3];
+				var device = incoming[0] + ":" + incoming[1];
+				console.log(device);
+				$('#' + device).toggleClass('btn-danger').toggleClass('btn-success');
+					if (typeof power === "Power On")
+						$('#' + device).text("Power Off")
+					else
+						$('#' + device).text("Power On");
+			}
+
+		})
+</script>
+<script>
+	$('.usable').click(
+		function() {  
+			$(this).toggleClass('btn-danger').toggleClass('btn-success');
+				if ($(this).text() == "Power On")
+					$(this).text("Power Off")
+				else
+					$(this).text("Power On");
+				$.getJSON('/_state', {state: $(this).text(), pin: $(this).attr('id')});    
+		});
+</script>
 </html>
