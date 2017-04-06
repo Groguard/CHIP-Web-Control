@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import gevent
 import gevent.monkey
@@ -6,19 +6,18 @@ from gevent.pywsgi import WSGIServer
 gevent.monkey.patch_all()
 
 from flask import Flask, render_template, request, redirect, url_for, flash, Response
-from ConfigParser import SafeConfigParser
 from werkzeug.datastructures import ImmutableOrderedMultiDict
 from time import sleep
 import CHIP_IO.GPIO as GPIO
 import threading
-
+import configparser
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
 
 
 # Load the config file
-config = SafeConfigParser()
+config = configparser.ConfigParser()
 configPath = 'usersettings.ini'
 
 
@@ -37,89 +36,104 @@ pass_data['chip_pins'] = chip_io
 pass_data['devices'] = {}
 
 
-def get_devices(): # Starts first to build live dictionary
-    GPIO.cleanup() # Clean up GPIO at start
-    config.read(configPath) # Read the config file to get devices and settings
-    zones = config.get('zones', 'zone_count') # Get the zone count from config
-    for device in config.sections()[1:]: # loop through all devices in the config
-        deviceData = {} # Nested dictionary for storing device options in the device dictionary
-        for deviceOptions in config.options(device): # loop through all device options for the current device
-            deviceData[deviceOptions] = config.get(device, deviceOptions) # Add device options to deviceData dictionary
-        pass_data['devices'][device] = deviceData # Add device and deviceData to live dictionary
-        pass_data['devices'][device]['state'] = 'Off' # Add a device dictionary to track the state of the device
-    pass_data['zone_count'] = (int(zones)) # Add the number of zones from the config file
-    setup_devices() # Setup devices after building live dictionary
+def initial_setup(): # Starts first to build live dictionary
+    # Clean up GPIO at start
+    GPIO.cleanup()
+
+    # Read the config file to get devices and settings
+    config.read(configPath)
+
+    # Get the zone count from config to add to live dictionary
+    zones = config.get('zones', 'zone_count')
+
+    # loop through all devices in the config
+    for device in config.sections()[1:]:
+        # Nested dictionary for storing device options in the device dictionary
+        deviceData = {}
+        # loop through all device options for the current device
+        for deviceOptions in config.options(device):
+            # Add device options to deviceData dictionary
+            deviceData[deviceOptions] = config.get(device, deviceOptions)
+        # Add device and deviceData to live dictionary
+        pass_data['devices'][device] = deviceData
+        # Add a device dictionary to track the state of the device
+        pass_data['devices'][device]['state'] = 'Off'
+    # Add the number of zones from the config file
+    pass_data['zone_count'] = (int(zones))
+    # Setup devices after building live dictionary
+    setup_devices()
 
 
-def setup_devices(): # Initial setup for device pins on start
+def setup_devices(): # Initial setup for devices saved in config at startup
     for device in pass_data['devices']:
+        # If the device is set for Input in the live dictionary
         if pass_data['devices'][device]['input_output'] == 'Input':
             input_setup(device)
+        # If the device is set for Output in the live dictionary
         elif pass_data['devices'][device]['input_output'] == 'Output':
             output_setup(device)
-        if pass_data['devices'][device]['reverse_logic'] == 'No':
-            if GPIO.input(pass_data['devices'][device]['pin']):
-                pass_data['devices'][device]['state'] = 'On' # Set the device state in the live dictionary
-            else:
-                pass_data['devices'][device]['state'] = 'Off' # Set the device state in the live dictionary
-        else:
-            if not GPIO.input(pass_data['devices'][device]['pin']):
-                pass_data['devices'][device]['state'] = 'On' # Set the device state in the live dictionary
-            else:
-                pass_data['devices'][device]['state'] = 'Off' # Set the device state in the live dictionary
+         # If a device timer is set to On, launch timer thread
         if pass_data['devices'][device]['timer_onoff'] == 'On':
             timer_thread_setup(device, pass_data['devices'][device]['pin'])
 
     
 def input_setup(device):
+    # If the device is set to 'Input' and internal resistor 'Pull Up' 
     if (pass_data['devices'][device]['pullup_pulldown'] == 'Pull Up' 
-            and pass_data['devices'][device]['input_output'] == 'Input'): # If the device is set to 'Input' and internal resistor 'Pull Up' 
-        GPIO.setup(pass_data['devices'][device]['pin'], GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set the pin to input and pull up the pin
+            and pass_data['devices'][device]['input_output'] == 'Input'):
+        GPIO.setup(pass_data['devices'][device]['pin'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    # If the device is set to 'Input' and internal resistor 'Pull Down'
     elif (pass_data['devices'][device]['pullup_pulldown'] == 'Pull Down' 
-            and pass_data['devices'][device]['input_output'] == 'Input'): # If the device is set to 'Input' and internal resistor 'Pull Down'
-        GPIO.setup(pass_data['devices'][device]['pin'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)# Set the pin to input and pull up the pin
+            and pass_data['devices'][device]['input_output'] == 'Input'):
+        GPIO.setup(pass_data['devices'][device]['pin'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
         
 def output_setup(device):
-    if pass_data['devices'][device]['input_output'] == 'Output': # If the device is set to 'Output'
+    # If the device is set to 'Output'
+    if pass_data['devices'][device]['input_output'] == 'Output':
             GPIO.setup(pass_data['devices'][device]['pin'], GPIO.OUT) # Set the pin to output
+    # If the device is set to 'Output' and the default state is 'High'
     elif (pass_data['devices'][device]['defaultstate'] == 'High' 
-            and pass_data['devices'][device]['input_output'] == 'Output'): # If the device is set to 'Output' and the default state is 'High'
+            and pass_data['devices'][device]['input_output'] == 'Output'):
         GPIO.output(pass_data['devices'][device]['pin'], GPIO.HIGH) # Set the pin state High
+    # If the device is set to 'Output' and the default state is 'Low'
     elif (pass_data['devices'][device]['defaultstate'] == 'Low' 
-            and pass_data['devices'][device]['input_output'] == 'Output'): # If the device is set to 'Output' and the default state is 'Low'
+            and pass_data['devices'][device]['input_output'] == 'Output'):
         GPIO.output(pass_data['devices'][device]['pin'], GPIO.LOW) # Set the pin state to Low
 
 
 def timer_thread_setup(device, pin):
-    # Device timer thread
+    # Start device timer thread
     deviceName = device
     device = threading.Thread(target=timer, args=(deviceName, pin))
     device.daemon = True
     device.start()
 
-    
+# Devices threaded timer generator
 def timer(device, pin):
-    while 1:
-        if pass_data['devices'][device]['timer_onoff'] == 'On':
-            time1 = pass_data['devices'][device]['timeon']
-            time2 = pass_data['devices'][device]['timeoff']
-            if pass_data['devices'][device]['reverse_logic'] == 'No': # for reverse high/low logic
-                GPIO.output(pin, GPIO.HIGH)
-                pass_data['devices'][device]['state'] = 'On'
-                sleep(float(time1)*3600)
-                GPIO.output(pin, GPIO.LOW)
-                pass_data['devices'][device]['state'] = 'Off'
-                sleep(float(time2)*3600)
+    while True:
+        try:
+            if pass_data['devices'][device]['timer_onoff'] == 'On':
+                time1 = pass_data['devices'][device]['timeon']
+                time2 = pass_data['devices'][device]['timeoff']
+                if pass_data['devices'][device]['reverse_logic'] == 'No': # for reverse high/low logic
+                    GPIO.output(pin, GPIO.HIGH)
+                    pass_data['devices'][device]['state'] = 'On'
+                    sleep(float(time1)*3600)
+                    GPIO.output(pin, GPIO.LOW)
+                    pass_data['devices'][device]['state'] = 'Off'
+                    sleep(float(time2)*3600)
+                else:
+                    GPIO.output(pin, GPIO.HIGH)
+                    pass_data['devices'][device]['state'] = 'Off'
+                    sleep(float(time1)*3600)
+                    GPIO.output(pin, GPIO.LOW)
+                    pass_data['devices'][device]['state'] = 'On'
+                    sleep(float(time2)*3600)
             else:
-                GPIO.output(pin, GPIO.HIGH)
-                pass_data['devices'][device]['state'] = 'Off'
-                sleep(float(time1)*3600)
-                GPIO.output(pin, GPIO.LOW)
-                pass_data['devices'][device]['state'] = 'On'
-                sleep(float(time2)*3600)
-        else:
-            sleep(10)
+                sleep(5)
+        except KeyError: # The device doesn't exist anymore, pass
+            sleep(300)
 
 
 @app.route('/')
@@ -132,24 +146,39 @@ def index():
 def addDevice():
     config.read(configPath)
     if request.method == 'POST':
-        request.parameter_storage_class = ImmutableOrderedMultiDict
-        lastDevice = request.form['device[]'] # Device Name
-        # Form error handling
-        if lastDevice == '': # Check is the device name is empty
+        #request.parameter_storage_class = ImmutableOrderedMultiDict
+        # Device Name
+        lastDevice = request.form['device[]']
+
+        # Check if the device name is empty
+        if lastDevice == '':
             flash("Device name can't be empty")
             return redirect(url_for('addDevice'))
-        elif lastDevice.lower() == 'default': # Check if the name is 'default' or 'Default'. Configparser doesn't allow sections with that name.
+        # Check if the device name has spaces in it
+        elif ' ' in lastDevice:
+            flash("Device name can't contain spaces")
+            return redirect(url_for('addDevice'))
+        # Check if the name is 'default' or 'Default'. configparser doesn't allow sections with that name.
+        elif lastDevice.lower() == 'default':
             flash('Device name can\'t be "Default" or "default"')
             return redirect(url_for('addDevice'))
-        for device in config.sections()[1:]: # Go through each section minus the first of the config, we just want devices
+
+        # Go through each section minus the first of the config, we just want devices
+        for device in config.sections()[1:]:
+
+            # Check if the device name is taken and if the pin is in use
             if (config.get(device, 'pin') == request.form['pin[]'] 
-                    and device == lastDevice): # Check if the device name is taken and if the pin is in use
+                    and device == lastDevice):
                 flash("Device name already taken and Device pin is already in use.")
                 return redirect(url_for('addDevice'))
-            elif device == lastDevice: # Check if the name of the device is already in use
+
+            # Check if the name of the device is already in use
+            elif device == lastDevice:
                 flash("Device name already taken")
                 return redirect(url_for('addDevice'))
-            elif config.get(device, 'pin') == request.form['pin[]']: # Check if the pin is already in use
+
+            # Check if the pin is already in use
+            elif config.get(device, 'pin') == request.form['pin[]']:
                 flash("Device pin is already in use.")
                 return redirect(url_for('addDevice'))
         else:
@@ -165,6 +194,7 @@ def addDevice():
             config.set(lastDevice, 'timeoff', request.form['timeoff[]'])
             config.set(lastDevice, 'zone', request.form['zone[]'])
             config.set(lastDevice, 'reverse_logic', request.form['reverse_logic[]'])
+
             # Add the new device to the live dictionary
             pass_data['devices'][lastDevice] = {}
             pass_data['devices'][lastDevice]['pin'] = request.form['pin[]']
@@ -177,11 +207,22 @@ def addDevice():
             pass_data['devices'][lastDevice]['timeoff'] = request.form['timeoff[]']
             pass_data['devices'][lastDevice]['zone'] = request.form['zone[]']
             pass_data['devices'][lastDevice]['reverse_logic'] = request.form['reverse_logic[]']
-            pass_data['devices'][lastDevice]['state'] == 'Off'
+            pass_data['devices'][lastDevice]['state'] = 'Off'
+
+            # Setup the pin
+            if pass_data['devices'][lastDevice]['input_output'] == 'Output':
+                # Device is set to output
+                output_setup(lastDevice)
+            else:
+                # Device is set to input
+                input_setup(lastDevice)
+
+            # Check if the timer is set to on and start the timer thread
             if pass_data['devices'][lastDevice]['timer_onoff'] == 'On':
                 timer_thread_setup(lastDevice, pass_data['devices'][lastDevice]['pin'])
+
             # Write the new configs to the config file
-            with open(configPath, "wb") as config_file:
+            with open(configPath, "r+", encoding='utf8') as config_file:
                 config.write(config_file)
     return render_template('addDevice.html', pass_data=pass_data)
 
@@ -191,9 +232,11 @@ def addDevice():
 def editDevice():
     config.read(configPath)
     if request.method == 'POST':
-        if request.form['submit'] == 'Update Device Settings': # If request is Update Device Settings
-            request.parameter_storage_class = ImmutableOrderedMultiDict
+        # If request is Update Device Settings
+        if request.form['submit'] == 'Update Device Settings': 
+            # Grab device name
             device = request.form['device[]']
+
             # Remove all current options from the device in the config
             config.remove_option(device, 'pin')
             config.remove_option(device, 'input_output')
@@ -205,6 +248,7 @@ def editDevice():
             config.remove_option(device, 'timeoff')
             config.remove_option(device, 'zone')
             config.remove_option(device, 'reverse_logic')
+
             # Set the new option settings for the device in the config
             config.set(device, 'pin', request.form['pin[]'])
             config.set(device, 'input_output', request.form['input_output[]'])
@@ -216,6 +260,7 @@ def editDevice():
             config.set(device, 'timeoff', request.form['timeoff[]'])
             config.set(device, 'zone', request.form['zone[]'])
             config.set(device, 'reverse_logic', request.form['reverse_logic[]'])
+
             # Update the live dictionary with the new settings
             pass_data['devices'][device]['pin'] = request.form['pin[]']
             pass_data['devices'][device]['input_output'] = request.form['input_output[]']
@@ -227,23 +272,35 @@ def editDevice():
             pass_data['devices'][device]['timeoff'] = request.form['timeoff[]']
             pass_data['devices'][device]['zone'] = request.form['zone[]']
             pass_data['devices'][device]['reverse_logic'] = request.form['reverse_logic[]']
-            with open(configPath, "wb") as config_file: # Write the new configs to the config file
+
+            # Write the new configs to the config file
+            with open(configPath, "w", encoding='utf8') as config_file: 
                 config.write(config_file)
-        if request.form['submit'] == 'Remove Device': # If request is to remove device
-            config.remove_section(request.form['device[]']) # Remove the device from the config
-            pass_data['devices'].pop(request.form['device[]'], None) # Remove the device from the live dictionary
-            with open(configPath, "wb") as config_file: # Write the new configs to the config file
+
+        # If request is to remove device
+        if request.form['submit'] == 'Remove Device':
+            # Remove the device from the config
+            config.remove_section(request.form['device[]'])
+
+            # Remove the device from the live dictionary
+            pass_data['devices'].pop(request.form['device[]'], None)
+
+            # Clean up the GPIO
+            GPIO.cleanup(request.form['pin[]'])
+
+            # Write the new configs to the config file
+            with open(configPath, "w", encoding='utf8') as config_file:
                 config.write(config_file)
     return redirect(url_for('addDevice'))
 
 
 # For editing the global zone count    
-@app.route('/zoneCount', methods=['POST'])
+@app.route('/_zoneCount', methods=['POST'])
 def zoneCount():
     config.read(configPath)
     zone_count = request.form['zone[]']
     config.set('zones', 'zone_count', zone_count)
-    with open(configPath, "wb") as config_file:
+    with open(configPath, "r+") as config_file:
         config.write(config_file)
     return redirect(url_for('addDevice'))
 
@@ -251,45 +308,37 @@ def zoneCount():
 # ajax GET call function to set state of pins
 @app.route("/_state")
 def _state():
-    state = request.args.get('state') # Get the current state of the button from the web page
-    pin = request.args.get('pin') # Get the current pin from the web page
-    pin = pin.split(':')
-    print(pin)
-    if pass_data['devices'][pin[0]]['reverse_logic'] == 'No': # for reverse high/low logic
+    # Get the current state of the button
+    state = request.args.get('state') 
+    # Get the current pin
+    device = request.args.get('device')
+    pin = pass_data['devices'][device]['pin']
+    if pass_data['devices'][device]['reverse_logic'] == 'No': # for reverse high/low logic
         if state=="Power On": # If the current state of the button is 'Power On'
-            GPIO.output(pin[1], GPIO.HIGH) # Set that pin state to High
+            GPIO.output(pin, GPIO.HIGH) # Set that pin state to High
+            pass_data['devices'][device]['state'] = 'On' # Set the device state in the live dictionary
         else:
-            GPIO.output(pin[1], GPIO.LOW) # Set the pin state to Low
-        for device in pass_data['devices']: # Go through devices and set their current state in the live dictionary
-            if GPIO.input(pass_data['devices'][device]['pin']):
-                pass_data['devices'][device]['state'] = 'On' # Set the device state in the live dictionary
-            else:
-                pass_data['devices'][device]['state'] = 'Off' # Set the device state in the live dictionary
+            GPIO.output(pin, GPIO.LOW) # Set the pin state to Low
+            pass_data['devices'][device]['state'] = 'Off' # Set the device state in the live dictionary           
     else: # for reverse high/low logic
         if state=="Power On": # If the current state of the button is 'Power On'
-            GPIO.output(pin[1], GPIO.LOW) # Set that pin state to Low
+            GPIO.output(pin, GPIO.LOW) # Set that pin state to Low
+            pass_data['devices'][device]['state'] = 'On' # Set the device state in the live dictionary
         else:
-            GPIO.output(pin[1], GPIO.HIGH) # Set the pin state to High
-        for device in pass_data['devices']: # Go through devices and set their current state in the live dictionary
-            if not GPIO.input(pass_data['devices'][device]['pin']):
-                pass_data['devices'][device]['state'] = 'On' # Set the device state in the live dictionary
-            else:
-                pass_data['devices'][device]['state'] = 'Off' # Set the device state in the live dictionary
+            GPIO.output(pin, GPIO.HIGH) # Set the pin state to High
+            pass_data['devices'][device]['state'] = 'Off' # Set the device state in the live dictionary
     return ""
 
 
 def event_stream():
     while True:
-        gevent.sleep(1)
         for device in pass_data['devices']:
             pin = pass_data['devices'][device]['pin']
             if pass_data['devices'][device]['state'] == 'On':
-                print('data: %s %s Power On \n\n' % (device, pin))
                 yield 'data: %s %s Power On \n\n' % (device, pin)
             else:
-                print('data: %s %s Power Off \n\n' % (device, pin))
                 yield 'data: %s %s Power Off \n\n' % (device, pin)
-
+        gevent.sleep(1)
 
 @app.route('/my_event_source')
 def sse_request():
@@ -297,9 +346,7 @@ def sse_request():
 
 
 if __name__ == '__main__':
-    get_devices()
-    #app.debug = True
-    #app.run('0.0.0.0', 5000)
+    initial_setup()
     print('Starting web server')
     server = WSGIServer(('0.0.0.0', 5000), app)
     print('Web server running..')

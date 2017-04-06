@@ -31,9 +31,6 @@
 			</div>
 		  </div>
 		</div>
-		<ul id="output">
-
-        </ul>
 		{% for i in range(1, pass_data['zone_count']+1) %}
 		<div class="section">
 		  <div class="container">
@@ -58,9 +55,9 @@
 					<div class="panel-body"> 
                     <ul class="list-group">
                       {% if  pass_data['devices'][device].state == 'On' %} 
-                      <li class="list-group-item"><button id="{{ device }}:{{ pass_data['devices'][device].pin }}" type="button" class="btn btn-success btn-block usable">Power On</button></li>
+                      <li class="list-group-item"><button id="{{ device }}" type="button" class="btn btn-success btn-block usable">Power On</button></li>
                       {% else %}
-                      <li class="list-group-item"><button id="{{ device }}:{{ pass_data['devices'][device].pin }}" type="button" class="btn btn-danger btn-block usable">Power Off</button></li>
+                      <li class="list-group-item"><button id="{{ device }}" type="button" class="btn btn-danger btn-block usable">Power Off</button></li>
                       {% endif %}
                       {% if pass_data['devices'][device].timer_onoff == 'On' %}
                       <li class="list-group-item"><a class="btn btn-success btn-block active">Timer {{ pass_data['devices'][device].timer_onoff }}</a></li>
@@ -91,15 +88,17 @@
 		function() {
 			sse = new EventSource('/my_event_source');
 			sse.onmessage = function(message) {
-				var incoming = message.data.split(' ', 4);
-				var power = incoming[2] + " " + incoming[3];
-				var device = incoming[0] + ":" + incoming[1];
-				console.log(device);
-				$('#' + device).toggleClass('btn-danger').toggleClass('btn-success');
-					if (typeof power === "Power On")
-						$('#' + device).text("Power Off")
-					else
-						$('#' + device).text("Power On");
+				var incoming = message.data.split(' ');
+				var device = incoming[0];
+				var power = incoming[2] + ' ' + incoming[3];
+				if (power == "Power On"){
+					$('#' + device).text("Power On");
+					$('#' + device).removeClass("btn-danger").addClass("btn-success");
+				}
+				else {
+					$('#' + device).text("Power Off");
+					$('#' + device).removeClass("btn-success").addClass("btn-danger");
+				}
 			}
 
 		})
@@ -112,7 +111,7 @@
 					$(this).text("Power Off")
 				else
 					$(this).text("Power On");
-				$.getJSON('/_state', {state: $(this).text(), pin: $(this).attr('id')});    
+				$.getJSON('/_state', {state: $(this).text(), device: $(this).attr('id')});    
 		});
 </script>
 </html>
