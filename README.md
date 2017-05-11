@@ -12,7 +12,8 @@ sudo pip3 install flask
 
 ## Installing CHIP_IO
 
-from @xtacocorex git https://github.com/xtacocorex/CHIP_IO
+from @xtacocorex 
+git clone https://github.com/xtacocorex/CHIP_IO
 
 git clone https://github.com/atenart/dtc
 
