@@ -43,5 +43,4 @@ cd CHIP-Web-Control
 
 sudo python3 main.py
 
-You should be able to navigate in your browser and view the web page at yourchipsip:8080
-With the program running in a screen, you can disconnect from the terminal and it will continue to run. If it should shutdown for some reason it will need to be restarted using steps 4-5. I'm working on a script to make it run at start, should have the soon.
+You should be able to navigate in your browser and view the web page at yourchipsip:5000
