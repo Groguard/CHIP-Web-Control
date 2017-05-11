@@ -4,6 +4,8 @@ The purpose of this program is to allow easy control and reading of the GPIO of 
 
 ## How to install:
 
+## Dependencies:
+
 sudo apt-get update
 
 sudo apt-get install git build-essential python3 python3-dev python3-pip flex bison screen
@@ -35,7 +37,7 @@ cd
 
 sudo rm -rf CHIP_IO
 
-## Downloading and running the software:
+## Downloading and running CHIP Web Control:
 
 git clone git://github.com/Groguard/CHIP-Web-Control.git
 
